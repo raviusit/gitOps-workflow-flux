@@ -25,7 +25,7 @@ spec:
         - --ingress-class=alb
         - --aws-vpc-id=vpc-008f8db5f4ac266b2
         - --aws-region=eu-central-1
-        - --disable-webhook-cert-updates
+        - --webhook-bind-port=0
         image: public.ecr.aws/eks/aws-load-balancer-controller:v2.7.2
         livenessProbe:
           failureThreshold: 2
