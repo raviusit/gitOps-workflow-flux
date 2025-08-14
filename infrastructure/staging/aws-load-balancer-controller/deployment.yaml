@@ -26,6 +26,9 @@ spec:
         - --aws-vpc-id=vpc-008f8db5f4ac266b2
         - --aws-region=eu-central-1
         - --webhook-bind-port=0
+        - --webhook-cert-dir=/tmp/certs
+        - --webhook-cert-file=
+        - --webhook-key-file=
         image: public.ecr.aws/eks/aws-load-balancer-controller:v2.7.2
         livenessProbe:
           failureThreshold: 2
@@ -59,10 +62,15 @@ spec:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: true
           runAsNonRoot: true
-        # volumeMounts removed temporarily - will be added back with webhook
+        volumeMounts:
+        - mountPath: /tmp/k8s-webhook-server/serving-certs
+          name: cert
+          readOnly: true
       priorityClassName: system-cluster-critical
       securityContext:
         fsGroup: 65534
       serviceAccountName: aws-load-balancer-controller
       terminationGracePeriodSeconds: 10
-      # volumes removed temporarily - will be added back with webhook
+      volumes:
+      - name: cert
+        emptyDir: {}
