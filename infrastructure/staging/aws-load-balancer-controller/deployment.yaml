@@ -19,6 +19,20 @@ spec:
         app.kubernetes.io/component: controller
         app.kubernetes.io/name: aws-load-balancer-controller
     spec:
+      initContainers:
+      - name: cert-init
+        image: busybox:1.35
+        command:
+        - /bin/sh
+        - -c
+        - |
+          mkdir -p /tmp/certs
+          touch /tmp/certs/tls.crt
+          touch /tmp/certs/tls.key
+          chmod 644 /tmp/certs/tls.crt /tmp/certs/tls.key
+        volumeMounts:
+        - mountPath: /tmp/certs
+          name: cert
       containers:
       - args:
         - --cluster-name=sre-challenge-staging
@@ -63,7 +77,7 @@ spec:
           readOnlyRootFilesystem: true
           runAsNonRoot: true
         volumeMounts:
-        - mountPath: /tmp/k8s-webhook-server/serving-certs
+        - mountPath: /tmp/certs
           name: cert
           readOnly: true
       priorityClassName: system-cluster-critical
