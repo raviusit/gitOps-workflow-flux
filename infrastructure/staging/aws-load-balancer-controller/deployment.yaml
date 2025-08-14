@@ -21,14 +21,14 @@ spec:
     spec:
       initContainers:
       - name: cert-init
-        image: busybox:1.35
+        image: alpine:3.18
         command:
         - /bin/sh
         - -c
         - |
+          apk add --no-cache openssl
           mkdir -p /tmp/certs
-          touch /tmp/certs/tls.crt
-          touch /tmp/certs/tls.key
+          openssl req -x509 -newkey rsa:2048 -keyout /tmp/certs/tls.key -out /tmp/certs/tls.crt -days 365 -nodes -subj "/C=US/ST=CA/L=San Francisco/O=Dummy/OU=Dummy/CN=localhost"
           chmod 644 /tmp/certs/tls.crt /tmp/certs/tls.key
         volumeMounts:
         - mountPath: /tmp/certs
