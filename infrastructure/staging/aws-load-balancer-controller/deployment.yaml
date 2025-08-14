@@ -61,17 +61,10 @@ spec:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: true
           runAsNonRoot: true
-        volumeMounts:
-        - mountPath: /tmp/k8s-webhook-server/serving-certs
-          name: cert
-          readOnly: true
+        # volumeMounts removed temporarily - will be added back with webhook
       priorityClassName: system-cluster-critical
       securityContext:
         fsGroup: 65534
       serviceAccountName: aws-load-balancer-controller
       terminationGracePeriodSeconds: 10
-      volumes:
-      - name: cert
-        secret:
-          defaultMode: 420
-          secretName: aws-load-balancer-webhook-tls
+      # volumes removed temporarily - will be added back with webhook
