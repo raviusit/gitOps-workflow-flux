@@ -1,0 +1,107 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+  namespace: sre-challenge
+data:
+  default.conf: |
+    server {
+        listen 80;
+        server_name _;
+        
+        # Health check endpoint
+        location /health {
+            access_log off;
+            return 200 "healthy\n";
+            add_header Content-Type text/plain;
+        }
+        
+        # Main application
+        location / {
+            root /usr/share/nginx/html;
+            index index.html;
+            try_files $uri $uri/ =404;
+        }
+        
+        # Enable gzip compression
+        gzip on;
+        gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+    }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-content
+  namespace: sre-challenge
+data:
+  index.html: |
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>SRE Challenge - Staging</title>
+        <style>
+            body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                margin: 0;
+                padding: 40px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                min-height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .container {
+                text-align: center;
+                background: rgba(255, 255, 255, 0.1);
+                padding: 40px;
+                border-radius: 20px;
+                backdrop-filter: blur(10px);
+                box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+                border: 1px solid rgba(255, 255, 255, 0.18);
+            }
+            h1 {
+                font-size: 3em;
+                margin-bottom: 20px;
+                text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            }
+            .badge {
+                background: #28a745;
+                padding: 10px 20px;
+                border-radius: 25px;
+                font-weight: bold;
+                margin: 20px 0;
+                display: inline-block;
+            }
+            .info {
+                margin: 20px 0;
+                font-size: 1.2em;
+            }
+            .version {
+                opacity: 0.8;
+                font-size: 0.9em;
+                margin-top: 30px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>🚀 SRE Challenge</h1>
+            <div class="badge">STAGING ENVIRONMENT</div>
+            <div class="info">
+                <p><strong>Status:</strong> ✅ Deployed via Flux GitOps</p>
+                <p><strong>Environment:</strong> eu-central-1</p>
+                <p><strong>Cluster:</strong> sre-challenge-staging</p>
+            </div>
+            <div class="version">
+                Version: 1.0.0 | Deployed: <span id="timestamp"></span>
+            </div>
+        </div>
+        
+        <script>
+            document.getElementById('timestamp').textContent = new Date().toISOString();
+        </script>
+    </body>
+    </html>
