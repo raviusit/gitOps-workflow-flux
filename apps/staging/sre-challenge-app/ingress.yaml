@@ -8,11 +8,16 @@ metadata:
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/healthcheck-path: /health
-    alb.ingress.kubernetes.io/healthcheck-interval-seconds: "15"
-    alb.ingress.kubernetes.io/healthcheck-timeout-seconds: "5"
+    alb.ingress.kubernetes.io/healthcheck-interval-seconds: "30"
+    alb.ingress.kubernetes.io/healthcheck-timeout-seconds: "10"
     alb.ingress.kubernetes.io/healthy-threshold-count: "2"
-    alb.ingress.kubernetes.io/unhealthy-threshold-count: "3"
+    alb.ingress.kubernetes.io/unhealthy-threshold-count: "5"
     alb.ingress.kubernetes.io/tags: Environment=staging,Project=sre-challenge
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+    #alb.ingress.kubernetes.io/ssl-redirect: "443"
+    #alb.ingress.kubernetes.io/certificate-arn: "arn:aws:acm:eu-central-1:215876814712:certificate/45902acd-5109-4517-aaaf-ccde6d88a3f4"
+    alb.ingress.kubernetes.io/load-balancer-name: "sre-challenge-alb-staging"  # Actual ALB name
+    alb.ingress.kubernetes.io/manage-backend-security-group-rules: "false"  # Don't auto-manage security groups
 spec:
   rules:
   - host: eu-central-1.sre-challenge-staging.local
