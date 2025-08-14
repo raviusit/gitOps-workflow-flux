@@ -25,6 +25,7 @@ spec:
         - --ingress-class=alb
         - --aws-vpc-id=vpc-008f8db5f4ac266b2
         - --aws-region=eu-central-1
+        - --disable-webhook-cert-updates
         image: public.ecr.aws/eks/aws-load-balancer-controller:v2.7.2
         livenessProbe:
           failureThreshold: 2
@@ -36,9 +37,6 @@ spec:
           timeoutSeconds: 10
         name: controller
         ports:
-        - containerPort: 9443
-          name: webhook-server
-          protocol: TCP
         - containerPort: 61779
           name: metrics-server
           protocol: TCP
