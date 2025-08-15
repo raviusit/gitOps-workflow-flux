@@ -9,10 +9,11 @@ resources:
 - hpa.yaml
 - gitrepository.yaml
 - kustomization-flux.yaml
-- imagerepository.yaml
-- imagepolicy.yaml
-- imageupdateautomation.yaml
 - health-monitor.yaml
+# Temporarily disabled until image automation controller is installed
+# - imagerepository.yaml
+# - imagepolicy.yaml
+# - imageupdateautomation.yaml
 
 commonLabels:
   app.kubernetes.io/name: sre-challenge-app
