@@ -171,7 +171,7 @@ spec:
         effect: NoSchedule
       containers:
       - name: fluentd
-        image: fluent/fluentd-kubernetes-daemonset:v1.16-debian-1
+        image: fluent/fluentd-kubernetes-daemonset:v1.18-debian-elasticsearch8-1
         env:
         - name: FLUENTD_SYSTEMD_CONF
           value: disable
