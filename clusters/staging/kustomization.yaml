@@ -3,4 +3,5 @@ kind: Kustomization
 resources:
 - flux-system
 - ../../infrastructure/staging/aws-load-balancer-controller
+- ../../infrastructure/staging/monitoring
 - ../../apps/staging/sre-challenge-app
