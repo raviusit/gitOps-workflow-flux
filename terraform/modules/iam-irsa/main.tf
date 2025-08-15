@@ -95,15 +95,10 @@ resource "aws_iam_policy" "aws_load_balancer_controller" {
           "ec2:CreateSecurityGroup",
           "ec2:CreateTags"
         ]
-        Resource = "arn:aws:ec2:*:*:security-group/*"
-        Condition = {
-          StringEquals = {
-            "ec2:CreateAction" = "CreateSecurityGroup"
-          }
-          Null = {
-            "aws:RequestedRegion" = "false"
-          }
-        }
+        Resource = [
+          "arn:aws:ec2:*:*:security-group/*",
+          "arn:aws:ec2:*:*:vpc/*"
+        ]
       },
       {
         Effect = "Allow"
@@ -112,11 +107,26 @@ resource "aws_iam_policy" "aws_load_balancer_controller" {
           "elasticloadbalancing:CreateTargetGroup"
         ]
         Resource = "*"
-        Condition = {
-          Null = {
-            "aws:RequestedRegion" = "false"
-          }
-        }
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "ec2:AuthorizeSecurityGroupIngress",
+          "ec2:RevokeSecurityGroupIngress",
+          "ec2:AuthorizeSecurityGroupEgress",
+          "ec2:RevokeSecurityGroupEgress",
+          "ec2:ModifySecurityGroupRules",
+          "ec2:DeleteSecurityGroup",
+          "elasticloadbalancing:ModifyLoadBalancerAttributes",
+          "elasticloadbalancing:SetIpAddressType",
+          "elasticloadbalancing:SetSecurityGroups",
+          "elasticloadbalancing:SetSubnets",
+          "elasticloadbalancing:DeleteLoadBalancer",
+          "elasticloadbalancing:ModifyTargetGroup",
+          "elasticloadbalancing:ModifyTargetGroupAttributes",
+          "elasticloadbalancing:DeleteTargetGroup"
+        ]
+        Resource = "*"
       }
     ]
   })

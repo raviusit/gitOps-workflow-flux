@@ -1,4 +1,4 @@
-# Regional resources for staging us-east-1
+# Regional resources for staging eu-central-1
 # These depend on global resources and create IRSA roles using EKS OIDC
 
 terraform {
@@ -63,7 +63,6 @@ locals {
   eks_cluster_role_arn    = data.terraform_remote_state.global.outputs.eks_cluster_role_arn
   eks_node_group_role_arn = data.terraform_remote_state.global.outputs.eks_node_group_role_arn
   hosted_zone_id          = data.terraform_remote_state.global.outputs.hosted_zone_id
-  certificate_arn         = try(data.terraform_remote_state.global.outputs.certificate_arn, null)
 }
 
 # VPC Module
@@ -136,6 +135,16 @@ resource "aws_eks_addon" "ebs_csi_driver" {
   tags = local.common_tags
 }
 
+# ACM Certificate Module (creates certificate for this region)
+module "acm" {
+  source = "../../../../modules/acm"
+
+  domain_name     = var.domain_name
+  hosted_zone_id  = local.hosted_zone_id
+
+  tags = local.common_tags
+}
+
 # ALB Module (uses IRSA roles)
 module "alb" {
   source = "../../../../modules/alb"
@@ -156,7 +165,7 @@ module "alb" {
   ingress_rules                    = var.alb_ingress_rules
   enable_http_listener             = var.alb_enable_http_listener
   enable_https_listener            = var.alb_enable_https_listener
-  certificate_arn                  = local.certificate_arn
+  certificate_arn                  = module.acm.certificate_arn
   ssl_policy                       = var.alb_ssl_policy
 
   tags = local.common_tags
@@ -176,18 +185,5 @@ module "s3_regional" {
   tags = local.common_tags
 }
 
-# Route53 records for this region's ALB
-module "route53_records" {
-  source = "../../../../modules/route53-records"
-
-  hosted_zone_id = local.hosted_zone_id
-  alb_dns_name   = module.alb.alb_dns_name
-  alb_zone_id    = module.alb.alb_canonical_hosted_zone_id
-  domain_name    = var.domain_name
-  environment    = var.environment
-  region         = var.aws_region
-
-  tags = local.common_tags
-
-  depends_on = [module.alb]
-}
+# DNS alias record is managed by Kubernetes AWS Load Balancer Controller
+# Certificate is provided via ACM module for Kubernetes ingress to use

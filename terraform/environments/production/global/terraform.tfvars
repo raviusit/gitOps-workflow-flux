@@ -3,7 +3,7 @@ project_name = "sre-challenge"
 environment  = "production"
 
 # Domain Configuration
-domain_name = "sre-challenge-production.local"
+domain_name = "sre-challenge-panther.network"
 create_hosted_zone = true
 
 # ECR Configuration

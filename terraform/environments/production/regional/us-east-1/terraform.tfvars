@@ -4,7 +4,7 @@ environment  = "production"
 aws_region   = "us-east-1"
 
 # Domain from global resources
-domain_name = "sre-challenge-production.local"
+domain_name = "sre-challenge-panther.network"
 
 # VPC Configuration
 vpc_cidr                 = "10.0.0.0/16"

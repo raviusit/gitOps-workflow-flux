@@ -3,7 +3,7 @@ project_name = "sre-challenge"
 environment  = "staging"
 
 # Route53 Configuration
-domain_name                = "sre-challenge-staging.local"
+domain_name                = "sre-challenge-panther.network"
 create_hosted_zone         = true
 hosted_zone_id             = ""
 route53_force_destroy      = true

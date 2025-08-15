@@ -4,7 +4,7 @@ environment  = "staging"
 aws_region   = "eu-central-1"
 
 # Domain from global resources
-domain_name = "sre-challenge-staging.local"
+domain_name = "eu-central-1.sre-challenge-panther.network"
 
 # VPC Configuration (Different CIDR to avoid conflicts)
 vpc_cidr                 = "10.1.0.0/16"
@@ -17,7 +17,7 @@ enable_flow_logs         = true
 # EKS Configuration
 cluster_version                        = "1.31"
 cluster_endpoint_private_access        = true
-cluster_endpoint_public_access         = false
+cluster_endpoint_public_access         = true
 cluster_endpoint_public_access_cidrs   = ["92.72.32.195/32"]
 cluster_enabled_log_types              = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
 cloudwatch_log_group_retention_in_days = 7
@@ -72,7 +72,7 @@ alb_access_logs_enabled              = false
 alb_access_logs_bucket               = ""
 alb_access_logs_prefix               = "alb-logs"
 alb_enable_http_listener             = true
-alb_enable_https_listener            = false
+alb_enable_https_listener            = true
 alb_ssl_policy                       = "ELBSecurityPolicy-TLS-1-2-2017-01"
 
 # ALB Ingress Rules
@@ -81,6 +81,13 @@ alb_ingress_rules = [
     description = "HTTP"
     from_port   = 80
     to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  },
+  {
+    description = "HTTPS"
+    from_port   = 443
+    to_port     = 443
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }

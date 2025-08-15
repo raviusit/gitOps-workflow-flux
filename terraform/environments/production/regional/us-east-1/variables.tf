@@ -21,7 +21,7 @@ variable "aws_region" {
 variable "domain_name" {
   description = "Base domain name from global resources"
   type        = string
-  default     = "sre-challenge-staging.local"
+  default     = "sre-challenge-panther.network"
 }
 
 # VPC Variables

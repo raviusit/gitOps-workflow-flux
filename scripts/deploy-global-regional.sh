@@ -298,7 +298,7 @@ case $ACTION in
                 echo "   kubectl get nodes"
                 echo ""
                 echo "🎯 Environment URLs:"
-                echo "   Regional: https://$REGION.sre-challenge-$ENVIRONMENT.local"
+                echo "   Regional: https://$REGION.sre-challenge-panther.network"
             else
                 echo "❌ Regional deployment cancelled"
                 exit 1

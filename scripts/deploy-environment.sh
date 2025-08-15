@@ -192,7 +192,7 @@ case $ACTION in
             echo "   kubectl get nodes"
             echo ""
             echo "🎯 Environment URL (when DNS is configured):"
-            echo "   https://$ENVIRONMENT.sre-challenge-$ENVIRONMENT.local"
+            echo "   https://$ENVIRONMENT.sre-challenge-panther.network"
         else
             echo "❌ Infrastructure deployment cancelled"
             exit 1
