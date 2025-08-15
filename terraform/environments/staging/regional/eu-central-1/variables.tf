@@ -1,4 +1,4 @@
-# Regional Variables for Staging us-east-1
+# Regional Variables for Staging eu-central-1
 
 variable "project_name" {
   description = "Name of the project"
@@ -15,13 +15,13 @@ variable "environment" {
 variable "aws_region" {
   description = "AWS region"
   type        = string
-  default     = "us-east-1"
+  default     = "eu-central-1"
 }
 
 variable "domain_name" {
   description = "Base domain name from global resources"
   type        = string
-  default     = "sre-challenge-staging.local"
+  default     = "eu-central-1.sre-challenge-panther.network"
 }
 
 # VPC Variables

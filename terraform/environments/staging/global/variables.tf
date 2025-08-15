@@ -16,7 +16,7 @@ variable "environment" {
 variable "domain_name" {
   description = "The domain name for the hosted zone"
   type        = string
-  default     = "sre-challenge-staging.local"
+  default     = "sre-challenge-panther.network"
 }
 
 variable "create_hosted_zone" {

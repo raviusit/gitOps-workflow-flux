@@ -1,0 +1,14 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: sre-challenge-app-source
+  namespace: sre-challenge
+spec:
+  interval: 30s
+  ref:
+    branch: phase3-fix-apps-flux
+  url: https://github.com/raviusit/gitOps-workflow-flux
+  ignore: |
+    # Ignore all files except app manifests
+    /*
+    !/apps/staging/sre-challenge-app/

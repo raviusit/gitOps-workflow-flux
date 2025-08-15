@@ -8,6 +8,11 @@ metadata:
     environment: staging
 spec:
   replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
   selector:
     matchLabels:
       app: sre-challenge-app
@@ -19,7 +24,7 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: nginx:1.25-alpine
+        image: nginx:1.25-alpine # {"$imagepolicy": "sre-challenge:nginx-policy"}
         ports:
         - containerPort: 80
           name: http
@@ -38,6 +43,7 @@ spec:
           periodSeconds: 10
           timeoutSeconds: 5
           failureThreshold: 3
+          successThreshold: 1
         readinessProbe:
           httpGet:
             path: /
@@ -45,7 +51,17 @@ spec:
           initialDelaySeconds: 5
           periodSeconds: 5
           timeoutSeconds: 3
-          failureThreshold: 3
+          failureThreshold: 2
+          successThreshold: 1
+        startupProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 6
+          successThreshold: 1
         volumeMounts:
         - name: nginx-config
           mountPath: /etc/nginx/conf.d/default.conf

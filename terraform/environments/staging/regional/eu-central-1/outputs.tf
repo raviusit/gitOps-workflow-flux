@@ -1,4 +1,4 @@
-# Regional Outputs for Staging us-east-1
+# Regional Outputs for Staging eu-central-1
 
 output "vpc_id" {
   description = "ID of the VPC"
@@ -107,15 +107,20 @@ output "regional_s3_bucket_arns" {
   value       = module.s3_regional.bucket_arns
 }
 
-# Route53 Records
-output "alb_record_name" {
-  description = "Name of the ALB DNS record"
-  value       = module.route53_records.alb_record_name
+# ACM Certificate
+output "certificate_arn" {
+  description = "ARN of the ACM certificate"
+  value       = module.acm.certificate_arn
+}
+
+output "certificate_domain_name" {
+  description = "Domain name of the certificate"
+  value       = module.acm.domain_name
 }
 
 output "alb_record_fqdn" {
-  description = "FQDN of the ALB DNS record"
-  value       = module.route53_records.alb_record_fqdn
+  description = "FQDN of the DNS record pointing to ALB (managed by Kubernetes)"
+  value       = var.domain_name
 }
 
 # Environment Information

@@ -1,0 +1,107 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: health-checker
+  namespace: sre-challenge
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: health-checker
+  namespace: sre-challenge
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list"]
+- apiGroups: ["apps"]
+  resources: ["deployments"]
+  verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: health-checker
+  namespace: sre-challenge
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: health-checker
+subjects:
+- kind: ServiceAccount
+  name: health-checker
+  namespace: sre-challenge
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: health-monitor-config
+  namespace: sre-challenge
+data:
+  monitor.sh: |
+    #!/bin/bash
+    # Health monitoring script for automated rollback validation
+    
+    APP_NAME="sre-challenge-app"
+    NAMESPACE="sre-challenge"
+    HEALTH_CHECK_URL="https://eu-central-1.sre-challenge-panther.network"
+    
+    echo "Starting health monitoring for $APP_NAME..."
+    
+    # Check deployment rollout status
+    if ! kubectl rollout status deployment/$APP_NAME -n $NAMESPACE --timeout=300s; then
+        echo "ERROR: Deployment rollout failed"
+        exit 1
+    fi
+    
+    # Check all pods are ready
+    READY_PODS=$(kubectl get pods -n $NAMESPACE -l app=$APP_NAME -o jsonpath='{.items[*].status.conditions[?(@.type=="Ready")].status}' | grep -o True | wc -l)
+    TOTAL_PODS=$(kubectl get pods -n $NAMESPACE -l app=$APP_NAME --no-headers | wc -l)
+    
+    if [ "$READY_PODS" -ne "$TOTAL_PODS" ]; then
+        echo "ERROR: Not all pods are ready. Ready: $READY_PODS, Total: $TOTAL_PODS"
+        exit 1
+    fi
+    
+    # HTTP health check
+    for i in {1..30}; do
+        if curl -f -s -o /dev/null "$HEALTH_CHECK_URL"; then
+            echo "SUCCESS: Application is healthy and responding"
+            exit 0
+        fi
+        echo "Attempt $i/30: Health check failed, retrying in 10s..."
+        sleep 10
+    done
+    
+    echo "ERROR: Application failed health checks after 30 attempts"
+    exit 1
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: post-deployment-health-check
+  namespace: sre-challenge
+  annotations:
+    # This job will be triggered after each deployment
+    flux.weave.works/automated: "true"
+spec:
+  template:
+    spec:
+      serviceAccountName: health-checker
+      containers:
+      - name: health-checker
+        image: bitnami/kubectl:latest
+        command: ["/bin/bash"]
+        args: ["-c", "apt-get update -q && apt-get install -y curl && /scripts/monitor.sh"]
+        volumeMounts:
+        - name: scripts
+          mountPath: /scripts
+        env:
+        - name: KUBECONFIG
+          value: "/tmp/kubeconfig"
+      volumes:
+      - name: scripts
+        configMap:
+          name: health-monitor-config
+          defaultMode: 0755
+      restartPolicy: Never
+  backoffLimit: 3
