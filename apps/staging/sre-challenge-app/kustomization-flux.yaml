@@ -24,9 +24,6 @@ spec:
   # Wait for health checks to pass
   wait: true
   
-  # Validation configuration
-  validation: client
-  
   # Rollback configuration - automatically rollback on health check failure
   # Flux will revert to the last known good state if health checks fail
   retryInterval: 30s
