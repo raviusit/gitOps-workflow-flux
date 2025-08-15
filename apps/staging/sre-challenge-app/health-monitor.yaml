@@ -1,4 +1,37 @@
 apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: health-checker
+  namespace: sre-challenge
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: health-checker
+  namespace: sre-challenge
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list"]
+- apiGroups: ["apps"]
+  resources: ["deployments"]
+  verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: health-checker
+  namespace: sre-challenge
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: health-checker
+subjects:
+- kind: ServiceAccount
+  name: health-checker
+  namespace: sre-challenge
+---
+apiVersion: v1
 kind: ConfigMap
 metadata:
   name: health-monitor-config
@@ -53,14 +86,18 @@ metadata:
 spec:
   template:
     spec:
+      serviceAccountName: health-checker
       containers:
       - name: health-checker
-        image: curlimages/curl:latest
-        command: ["/bin/sh"]
-        args: ["/scripts/monitor.sh"]
+        image: bitnami/kubectl:latest
+        command: ["/bin/bash"]
+        args: ["-c", "apt-get update -q && apt-get install -y curl && /scripts/monitor.sh"]
         volumeMounts:
         - name: scripts
           mountPath: /scripts
+        env:
+        - name: KUBECONFIG
+          value: "/tmp/kubeconfig"
       volumes:
       - name: scripts
         configMap:

@@ -1,0 +1,237 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app.kubernetes.io/component: image-reflector-controller
+    app.kubernetes.io/instance: flux-system
+    app.kubernetes.io/part-of: flux
+    app.kubernetes.io/version: v2.2.3
+  name: image-reflector-controller
+  namespace: flux-system
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app.kubernetes.io/component: image-automation-controller
+    app.kubernetes.io/instance: flux-system
+    app.kubernetes.io/part-of: flux
+    app.kubernetes.io/version: v2.2.3
+  name: image-automation-controller
+  namespace: flux-system
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    control-plane: image-reflector-controller
+  name: image-reflector-controller
+  namespace: flux-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: image-reflector-controller
+  template:
+    metadata:
+      annotations:
+        prometheus.io/port: "8080"
+        prometheus.io/scrape: "true"
+      labels:
+        app: image-reflector-controller
+    spec:
+      containers:
+      - args:
+        - --events-addr=http://notification-controller.flux-system.svc.cluster.local./
+        - --watch-all-namespaces=true
+        - --log-level=info
+        - --log-encoding=json
+        - --enable-leader-election
+        env:
+        - name: RUNTIME_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        image: fluxcd/image-reflector-controller:v0.32.0
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: healthz
+        name: manager
+        ports:
+        - containerPort: 8080
+          name: http-prom
+          protocol: TCP
+        - containerPort: 9440
+          name: healthz
+          protocol: TCP
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: healthz
+        resources:
+          limits:
+            cpu: 1000m
+            memory: 1Gi
+          requests:
+            cpu: 100m
+            memory: 64Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          seccompProfile:
+            type: RuntimeDefault
+      securityContext:
+        fsGroup: 1337
+      serviceAccountName: image-reflector-controller
+      terminationGracePeriodSeconds: 10
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    control-plane: image-automation-controller
+  name: image-automation-controller
+  namespace: flux-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: image-automation-controller
+  template:
+    metadata:
+      annotations:
+        prometheus.io/port: "8080"
+        prometheus.io/scrape: "true"
+      labels:
+        app: image-automation-controller
+    spec:
+      containers:
+      - args:
+        - --events-addr=http://notification-controller.flux-system.svc.cluster.local./
+        - --watch-all-namespaces=true
+        - --log-level=info
+        - --log-encoding=json
+        - --enable-leader-election
+        env:
+        - name: RUNTIME_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        image: fluxcd/image-automation-controller:v0.38.0
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: healthz
+        name: manager
+        ports:
+        - containerPort: 8080
+          name: http-prom
+          protocol: TCP
+        - containerPort: 9440
+          name: healthz
+          protocol: TCP
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: healthz
+        resources:
+          limits:
+            cpu: 1000m
+            memory: 1Gi
+          requests:
+            cpu: 100m
+            memory: 64Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          seccompProfile:
+            type: RuntimeDefault
+      securityContext:
+        fsGroup: 1337
+      serviceAccountName: image-automation-controller
+      terminationGracePeriodSeconds: 10
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: image-reflector-controller
+  labels:
+    app.kubernetes.io/component: image-reflector-controller
+rules:
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["image.toolkit.fluxcd.io"]
+  resources: ["imagerepositories"]
+  verbs: ["get", "list", "watch", "create", "update", "patch"]
+- apiGroups: ["image.toolkit.fluxcd.io"]
+  resources: ["imagerepositories/status"]
+  verbs: ["update", "patch"]
+- apiGroups: [""]
+  resources: ["events"]
+  verbs: ["create", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: image-automation-controller
+  labels:
+    app.kubernetes.io/component: image-automation-controller
+rules:
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["image.toolkit.fluxcd.io"]
+  resources: ["imagerepositories", "imagepolicies", "imageupdateautomations"]
+  verbs: ["get", "list", "watch", "create", "update", "patch"]
+- apiGroups: ["image.toolkit.fluxcd.io"]
+  resources: ["imageupdateautomations/status"]
+  verbs: ["update", "patch"]
+- apiGroups: ["source.toolkit.fluxcd.io"]
+  resources: ["gitrepositories"]
+  verbs: ["get", "list", "watch", "patch"]
+- apiGroups: [""]
+  resources: ["events"]
+  verbs: ["create", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: image-reflector-controller
+  labels:
+    app.kubernetes.io/component: image-reflector-controller
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: image-reflector-controller
+subjects:
+- kind: ServiceAccount
+  name: image-reflector-controller
+  namespace: flux-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: image-automation-controller
+  labels:
+    app.kubernetes.io/component: image-automation-controller
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: image-automation-controller
+subjects:
+- kind: ServiceAccount
+  name: image-automation-controller
+  namespace: flux-system

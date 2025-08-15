@@ -10,10 +10,9 @@ resources:
 - gitrepository.yaml
 - kustomization-flux.yaml
 - health-monitor.yaml
-# Temporarily disabled until image automation controller is installed
-# - imagerepository.yaml
-# - imagepolicy.yaml
-# - imageupdateautomation.yaml
+- imagerepository.yaml
+- imagepolicy.yaml
+- imageupdateautomation.yaml
 
 commonLabels:
   app.kubernetes.io/name: sre-challenge-app
