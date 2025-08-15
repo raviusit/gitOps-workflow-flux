@@ -6,7 +6,7 @@ namespace: monitoring
 resources:
 - namespace.yaml
 - prometheus-operator.yaml
-- fluentd.yaml
+- fluent-bit.yaml
 - ingress.yaml
 - sre-challenge-dashboard.yaml
 # ServiceMonitors will be added after Prometheus Operator is ready
