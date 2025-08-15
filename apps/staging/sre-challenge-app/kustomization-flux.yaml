@@ -1,0 +1,40 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: sre-challenge-app
+  namespace: sre-challenge
+spec:
+  interval: 2m0s
+  path: "./apps/staging/sre-challenge-app"
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: sre-challenge-app-source
+  
+  # Health checks and automated rollback configuration
+  healthChecks:
+    - apiVersion: apps/v1
+      kind: Deployment
+      name: sre-challenge-app
+      namespace: sre-challenge
+  
+  # Timeout for health checks
+  timeout: 5m0s
+  
+  # Wait for health checks to pass
+  wait: true
+  
+  # Validation configuration
+  validation: client
+  
+  # Rollback configuration - automatically rollback on health check failure
+  # Flux will revert to the last known good state if health checks fail
+  retryInterval: 30s
+  
+  # Force update on changes
+  force: false
+  
+  # Post-build substitutions for dynamic values
+  postBuild:
+    substitute:
+      APP_VERSION: "1.25-alpine"  # This will be used for automated version updates

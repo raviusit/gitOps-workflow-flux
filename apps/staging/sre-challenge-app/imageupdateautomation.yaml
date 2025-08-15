@@ -1,0 +1,42 @@
+apiVersion: image.toolkit.fluxcd.io/v1beta1
+kind: ImageUpdateAutomation
+metadata:
+  name: sre-challenge-app-update
+  namespace: sre-challenge
+spec:
+  interval: 30m0s
+  sourceRef:
+    kind: GitRepository
+    name: sre-challenge-app-source
+  git:
+    checkout:
+      ref:
+        branch: phase3-fix-apps-flux
+    commit:
+      author:
+        email: flux@sre-challenge.local
+        name: Flux Image Updater
+      messageTemplate: |
+        Automated image update
+        
+        Automation name: {{ .AutomationObject }}
+        
+        Files:
+        {{ range $filename, $_ := .Updated.Files -}}
+        - {{ $filename }}
+        {{ end -}}
+        
+        Objects:
+        {{ range $resource, $_ := .Updated.Objects -}}
+        - {{ $resource.Kind }} {{ $resource.Name }}
+        {{ end -}}
+        
+        Images:
+        {{ range .Updated.Images -}}
+        - {{.}}
+        {{ end -}}
+    push:
+      branch: phase3-fix-apps-flux
+  update:
+    path: "./apps/staging/sre-challenge-app"
+    strategy: Setters
