@@ -7,7 +7,7 @@ resources:
 - namespace.yaml
 - prometheus-operator.yaml
 - fluent-bit.yaml
-- ingress.yaml
+- simple-ingress.yaml
 - sre-challenge-dashboard.yaml
 - servicemonitors.yaml
 - node-health-dashboard.yaml
@@ -21,14 +21,3 @@ commonLabels:
   app.kubernetes.io/part-of: sre-challenge
   app.kubernetes.io/managed-by: flux
 
-patchesStrategicMerge:
-- |-
-  apiVersion: networking.k8s.io/v1
-  kind: Ingress
-  metadata:
-    name: monitoring-ingress
-    namespace: monitoring
-  spec:
-    rules:
-    - host: prometheus.eu-central-1.sre-challenge-panther.network
-    - host: grafana.eu-central-1.sre-challenge-panther.network
