@@ -9,6 +9,7 @@ resources:
 - fluentd.yaml
 - ingress.yaml
 - sre-challenge-dashboard.yaml
+- flux-Kustomization.yaml
 # ServiceMonitors will be added after Prometheus Operator is ready
 # - servicemonitors.yaml
 
