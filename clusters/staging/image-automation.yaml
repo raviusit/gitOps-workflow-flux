@@ -164,6 +164,12 @@ spec:
           runAsNonRoot: true
           seccompProfile:
             type: RuntimeDefault
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+      volumes:
+      - name: tmp
+        emptyDir: {}
       securityContext:
         fsGroup: 1337
       serviceAccountName: image-automation-controller
