@@ -7,9 +7,10 @@ resources:
 - namespace.yaml
 - prometheus-operator.yaml
 - fluentd.yaml
-- servicemonitors.yaml
 - ingress.yaml
 - sre-challenge-dashboard.yaml
+# ServiceMonitors will be added after Prometheus Operator is ready
+# - servicemonitors.yaml
 
 commonLabels:
   app.kubernetes.io/name: monitoring-stack
