@@ -4,4 +4,5 @@ resources:
 - flux-system
 - ../../infrastructure/staging/aws-load-balancer-controller
 - ../../infrastructure/staging/monitoring
-- ../../apps/staging/sre-challenge-app
+# Temporarily disabled for fresh recreation
+# - ../../apps/staging/sre-challenge-app

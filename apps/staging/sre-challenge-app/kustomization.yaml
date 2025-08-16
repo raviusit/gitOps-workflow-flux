@@ -11,9 +11,10 @@ resources:
 - kustomization-flux.yaml
 # Temporarily disabled until we implement proper monitoring solution
 # - health-monitor.yaml
-- imagerepository.yaml
-- imagepolicy.yaml
-- imageupdateautomation.yaml
+# Temporarily disabled image automation to prevent GitOps blocking
+# - imagerepository.yaml
+# - imagepolicy.yaml
+# - imageupdateautomation.yaml
 
 commonLabels:
   app.kubernetes.io/name: sre-challenge-app
