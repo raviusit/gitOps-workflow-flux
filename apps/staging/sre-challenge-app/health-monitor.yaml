@@ -78,40 +78,35 @@ data:
     exit 1
 ---
 apiVersion: batch/v1
-kind: CronJob
+kind: Job
 metadata:
-  name: health-monitor-cronjob
+  # Use generateName for unique job names to avoid conflicts
+  generateName: post-deployment-health-check-
   namespace: sre-challenge
   annotations:
-    # Continuous health monitoring that doesn't block Flux reconciliation
-    kustomize.toolkit.fluxcd.io/reconcile: "disabled"
+    # Post-deployment validation - runs once per deployment
+    flux.weave.works/automated: "true"
 spec:
-  # Run health check every 5 minutes
-  schedule: "*/5 * * * *"
-  successfulJobsHistoryLimit: 2
-  failedJobsHistoryLimit: 2
-  jobTemplate:
+  # Clean up job after completion to prevent accumulation
+  ttlSecondsAfterFinished: 600  # 10 minutes
+  template:
     spec:
-      # Clean up job after completion
-      ttlSecondsAfterFinished: 300
-      template:
-        spec:
-          serviceAccountName: health-checker
-          containers:
-          - name: health-checker
-            image: alpine/curl:latest
-            command: ["/bin/sh"]
-            args: ["-c", "apk add --no-cache kubectl && /scripts/monitor.sh"]
-            volumeMounts:
-            - name: scripts
-              mountPath: /scripts
-            env:
-            - name: KUBECONFIG
-              value: "/tmp/kubeconfig"
-          volumes:
-          - name: scripts
-            configMap:
-              name: health-monitor-config
-              defaultMode: 0755
-          restartPolicy: Never
-      backoffLimit: 1
+      serviceAccountName: health-checker
+      containers:
+      - name: health-checker
+        image: alpine/curl:latest
+        command: ["/bin/sh"]
+        args: ["-c", "apk add --no-cache kubectl && /scripts/monitor.sh"]
+        volumeMounts:
+        - name: scripts
+          mountPath: /scripts
+        env:
+        - name: KUBECONFIG
+          value: "/tmp/kubeconfig"
+      volumes:
+      - name: scripts
+        configMap:
+          name: health-monitor-config
+          defaultMode: 0755
+      restartPolicy: Never
+  backoffLimit: 2
