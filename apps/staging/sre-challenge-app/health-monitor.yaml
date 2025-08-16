@@ -43,7 +43,7 @@ data:
     
     APP_NAME="sre-challenge-app"
     NAMESPACE="sre-challenge"
-    HEALTH_CHECK_URL="https://eu-central-1.sre-challenge-panther.network"
+    SERVICE_URL="http://sre-challenge-app.sre-challenge.svc.cluster.local:80/health"
     
     echo "Starting health monitoring for $APP_NAME..."
     
@@ -62,17 +62,17 @@ data:
         exit 1
     fi
     
-    # HTTP health check
-    for i in {1..30}; do
-        if curl -f -s -o /dev/null "$HEALTH_CHECK_URL"; then
+    # Internal service health check
+    for i in {1..10}; do
+        if curl -f -s -o /dev/null "$SERVICE_URL"; then
             echo "SUCCESS: Application is healthy and responding"
             exit 0
         fi
-        echo "Attempt $i/30: Health check failed, retrying in 10s..."
-        sleep 10
+        echo "Attempt $i/10: Health check failed, retrying in 5s..."
+        sleep 5
     done
     
-    echo "ERROR: Application failed health checks after 30 attempts"
+    echo "ERROR: Application failed health checks after 10 attempts"
     exit 1
 ---
 apiVersion: batch/v1
@@ -89,9 +89,9 @@ spec:
       serviceAccountName: health-checker
       containers:
       - name: health-checker
-        image: bitnami/kubectl:latest
-        command: ["/bin/bash"]
-        args: ["-c", "apt-get update -q && apt-get install -y curl && /scripts/monitor.sh"]
+        image: alpine/curl:latest
+        command: ["/bin/sh"]
+        args: ["-c", "apk add --no-cache kubectl && /scripts/monitor.sh"]
         volumeMounts:
         - name: scripts
           mountPath: /scripts
