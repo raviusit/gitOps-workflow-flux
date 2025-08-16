@@ -11,7 +11,7 @@ spec:
   git:
     checkout:
       ref:
-        branch: bug-fixes-improvement
+        branch: main
     commit:
       author:
         email: flux@sre-challenge.local
@@ -36,7 +36,7 @@ spec:
         - {{.}}
         {{ end -}}
     push:
-      branch: bug-fixes-improvement
+      branch: main
   update:
     path: "./apps/staging/sre-challenge-app"
     strategy: Setters
