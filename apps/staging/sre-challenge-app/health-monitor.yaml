@@ -80,8 +80,7 @@ data:
 apiVersion: batch/v1
 kind: Job
 metadata:
-  # Use generateName for unique job names to avoid conflicts
-  generateName: post-deployment-health-check-
+  name: post-deployment-health-check
   namespace: sre-challenge
   annotations:
     # Post-deployment validation - runs once per deployment
