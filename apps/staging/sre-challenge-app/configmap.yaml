@@ -106,14 +106,14 @@ data:
             <div class="badge">STAGING ENVIRONMENT</div>
             <div class="info">
                 <p><strong>Status:</strong> ✅ Deployed via Flux GitOps</p>
+                <div class="version"> Version: 1.0.0 </div>
                 <p><strong>Environment:</strong> eu-central-1</p>
                 <p><strong>Cluster:</strong> sre-challenge-staging</p>
             </div>
-            <div class="version">
-                Version: 1.0.0 | Deployed: <span id="timestamp"></span>
+            <div class="currentTime">
+                Current Time: <span id="timestamp"></span>
             </div>
         </div>
-        
         <script>
             document.getElementById('timestamp').textContent = new Date().toISOString();
         </script>
