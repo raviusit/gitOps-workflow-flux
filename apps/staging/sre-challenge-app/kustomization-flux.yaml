@@ -21,8 +21,8 @@ spec:
   # Timeout for health checks
   timeout: 5m0s
   
-  # Wait for health checks to pass
-  wait: true
+  # Wait disabled to prevent indefinite blocking on Jobs/ImageAutomation
+  wait: false
   
   # Rollback configuration - automatically rollback on health check failure
   # Flux will revert to the last known good state if health checks fail
