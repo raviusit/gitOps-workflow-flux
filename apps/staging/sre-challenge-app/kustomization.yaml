@@ -24,7 +24,3 @@ commonLabels:
 
 namespace: sre-challenge
 
-# Use suffix hash for unique Job names
-nameSuffix: "-"
-generatorOptions:
-  disableNameSuffixHash: false
