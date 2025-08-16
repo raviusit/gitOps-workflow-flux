@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # Flux Bootstrap Script for SRE Challenge
+# Export the environment variable GITHUB_TOKEN before running this script. export GITHUB_TOKEN=<your-token>
 # Usage: ./install-flux.sh <github-username> <environment>
 
 set -e
