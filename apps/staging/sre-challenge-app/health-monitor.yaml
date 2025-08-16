@@ -78,7 +78,7 @@ data:
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: post-deployment-health-check
+  name: post-deployment-health-check-v2
   namespace: sre-challenge
   annotations:
     # This job will be triggered after each deployment
