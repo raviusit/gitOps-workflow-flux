@@ -38,7 +38,7 @@ metadata:
   namespace: sre-challenge
 data:
   monitor.sh: |
-    #!/bin/bash
+    #!/bin/sh
     # Health monitoring script for automated rollback validation
     
     APP_NAME="sre-challenge-app"
@@ -63,13 +63,15 @@ data:
     fi
     
     # Internal service health check
-    for i in {1..10}; do
+    i=1
+    while [ $i -le 10 ]; do
         if curl -f -s -o /dev/null "$SERVICE_URL"; then
             echo "SUCCESS: Application is healthy and responding"
             exit 0
         fi
         echo "Attempt $i/10: Health check failed, retrying in 5s..."
         sleep 5
+        i=$((i + 1))
     done
     
     echo "ERROR: Application failed health checks after 10 attempts"
@@ -93,7 +95,7 @@ spec:
       - name: health-checker
         image: alpine/curl:latest
         command: ["/bin/sh"]
-        args: ["-c", "apk add --no-cache kubectl && cp /scripts/monitor.sh /tmp/monitor.sh && chmod +x /tmp/monitor.sh && /tmp/monitor.sh"]
+        args: ["-c", "apk add --no-cache kubectl && /scripts/monitor.sh"]
         volumeMounts:
         - name: scripts
           mountPath: /scripts
