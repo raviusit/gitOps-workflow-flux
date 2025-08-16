@@ -1,5 +1,156 @@
 # gitOps-workflow-flux
 
+**Background -**
+This repository contains my implementation of an SRE Challenge designed to demonstrate end-to-end skills in Kubernetes provisioning, 
+GitOps workflows, application deployment, monitoring, and logging using Infrastructure as Code (IaC) principles.
+The goal is to simulate a real-world Site Reliability Engineering scenario where an engineer is responsible for:
+- Provisioning a secure and production-ready Kubernetes cluster using Terraform.
+- Bootstrapping Flux for GitOps-based deployment automation.
+- Deploying a sample web application with automated upgrades and rollbacks.
+- Setting up basic monitoring (Prometheus, Grafana) and centralized logging (Fluentd).
+- Following security, scalability, and resilience best practices.
+
+This challenge emphasizes:
+**Automation —** All components can be deployed or destroyed without manual intervention.
+**Security-first design —** RBAC, Network Policies, and restricted Pod permissions.
+**Operational excellence —** Observability and fault-tolerance are built in from the start.
+
+The documentation in this repository captures the steps taken, the issues encountered, and the design choices made — making it reproducible and extensible for future improvements.
+
+## 🏗️ Repository Structure
+```
+├── apps
+│   └── staging
+│       └── sre-challenge-app
+│           ├── configmap.yaml
+│           ├── deployment.yaml
+│           ├── gitrepository.yaml
+│           ├── health-monitor.yaml
+│           ├── hpa.yaml
+│           ├── imagepolicy.yaml
+│           ├── imagerepository.yaml
+│           ├── imageupdateautomation.yaml
+│           ├── ingress.yaml
+│           ├── kustomization-flux.yaml
+│           ├── kustomization.yaml
+│           ├── namespace.yaml              # App namespace
+│           └── service.yaml
+├── clusters
+│   └── staging
+│       ├── flux-system
+│       │   ├── gotk-components.yaml        # Flux controllers
+│       │   ├── gotk-sync.yaml              # Git repository sync
+│       │   └── kustomization.yaml          # Flux system config
+│       ├── image-automation.yaml
+│       └── kustomization.yaml              # Cluster-level config
+├── infrastructure
+│   └── staging
+│       ├── aws-load-balancer-controller
+│       │   ├── crds.yaml
+│       │   ├── deployment.yaml
+│       │   ├── kustomization.yaml
+│       │   ├── namespace.yaml
+│       │   ├── rbac.yaml
+│       │   ├── serviceaccount.yaml
+│       │   └── webhook.yaml
+│       ├── kustomization.yaml
+│       └── monitoring
+│           ├── application-health-dashboard.yaml
+│           ├── fluent-bit.yaml
+│           ├── kustomization.yaml
+│           ├── namespace.yaml
+│           ├── node-health-dashboard.yaml
+│           ├── prometheus-operator.yaml
+│           ├── servicemonitors.yaml
+│           ├── simple-ingress.yaml
+│           └── sre-challenge-dashboard.yaml
+├── LICENSE
+├── README.md
+├── scripts
+│   ├── deploy-global-regional.sh         # Terraform deployment script
+│   └── install-flux.sh                   # Flux bootstrap script
+└── terraform
+    ├── environments
+    │   ├── production
+    │   │   ├── global
+    │   │   │   └── terraform.tfvars
+    │   │   └── regional
+    │   │       ├── eu-central-1
+    │   │       │   ├── main.tf
+    │   │       │   ├── outputs.tf
+    │   │       │   ├── terraform.tfvars
+    │   │       │   └── variables.tf
+    │   │       └── us-east-1
+    │   │           ├── main.tf
+    │   │           ├── outputs.tf
+    │   │           ├── terraform.tfvars
+    │   │           └── variables.tf
+    │   └── staging
+    │       ├── global
+    │       │   ├── backend-config.hcl
+    │       │   ├── backend.hcl
+    │       │   ├── main.tf
+    │       │   ├── outputs.tf
+    │       │   ├── terraform.tfvars
+    │       │   └── variables.tf
+    │       └── regional
+    │           ├── eu-central-1
+    │           │   ├── backend-config.hcl
+    │           │   ├── main.tf
+    │           │   ├── outputs.tf
+    │           │   ├── terraform.tfvars
+    │           │   └── variables.tf
+    │           └── us-east-1
+    │               ├── main.tf
+    │               ├── outputs.tf
+    │               ├── terraform.tfvars
+    │               └── variables.tf
+    ├── modules
+    │   ├── acm
+    │   │   ├── main.tf
+    │   │   ├── outputs.tf
+    │   │   └── variables.tf
+    │   ├── alb
+    │   │   ├── main.tf
+    │   │   ├── outputs.tf
+    │   │   └── variables.tf
+    │   ├── eks
+    │   │   ├── main.tf
+    │   │   ├── outputs.tf
+    │   │   └── variables.tf
+    │   ├── iam
+    │   │   ├── main.tf
+    │   │   ├── outputs.tf
+    │   │   └── variables.tf
+    │   ├── iam-basic
+    │   │   ├── main.tf
+    │   │   ├── outputs.tf
+    │   │   └── variables.tf
+    │   ├── iam-irsa
+    │   │   ├── main.tf
+    │   │   ├── outputs.tf
+    │   │   └── variables.tf
+    │   ├── route53
+    │   │   ├── main.tf
+    │   │   ├── outputs.tf
+    │   │   └── variables.tf
+    │   ├── route53-records
+    │   │   ├── main.tf
+    │   │   ├── outputs.tf
+    │   │   └── variables.tf
+    │   ├── s3
+    │   │   ├── main.tf
+    │   │   ├── outputs.tf
+    │   │   └── variables.tf
+    │   └── vpc
+    │       ├── main.tf
+    │       ├── outputs.tf
+    │       └── variables.tf
+    └── README.md
+
+```
+
+
 # 🚀 Phase 1: Infrastructure Setup
 
 ## What Has Been Created
@@ -11,6 +162,8 @@
 - **ALB Module**: Application Load Balancer with security groups and target groups
 - **Route53 Module**: DNS management and SSL certificates via ACM
 - **S3 Module**: Buckets for artifacts and configurations with lifecycle policies
+- **ACM Module**: Automatic certificate management via ACM 
+
 
 ### 🌍 Multi-Region, Multi-Environment Structure
 ```
@@ -42,29 +195,18 @@ Production Account (746848447423):
 2. Terraform >= 1.0 installed
 3. kubectl installed
 
-### Step 1: Create Backend Infrastructure
-```bash
-# Create backend for staging us-east-1
-./scripts/setup-backend.sh staging us-east-1 staging
-
-# Repeat for other regions/environments
-./scripts/setup-backend.sh staging eu-central-1 staging
-./scripts/setup-backend.sh production us-east-1 production
-./scripts/setup-backend.sh production eu-central-1 production
-```
-
-### Step 2: Deploy Infrastructure
+### Step 1: Deploy Infrastructure
 ```bash
 # Deploy staging infrastructure
-./scripts/deploy-infrastructure.sh staging us-east-1 apply
-./scripts/deploy-infrastructure.sh staging eu-central-1 apply
+./scripts/deploy-global-regional.sh staging eu-central-1 apply # this is the operational region for this POC
+./scripts/deploy-global-regional.sh staging us-east-1 apply # Nearly equivalent but not tested
 
 # Deploy production infrastructure
-./scripts/deploy-infrastructure.sh production us-east-1 apply
-./scripts/deploy-infrastructure.sh production eu-central-1 apply
+./scripts/deploy-global-regional.sh production us-east-1 apply # Nearly equivalent but not tested
+./scripts/deploy-global-regional.sh production eu-central-1 apply # Nearly equivalent but not tested
 ```
 
-### Step 3: Configure kubectl
+### Step 2: Configure kubectl
 ```bash
 # Connect to staging cluster
 aws eks update-kubeconfig --region us-east-1 --name sre-challenge-staging --profile staging
@@ -81,14 +223,10 @@ kubectl get nodes
 - **Log Retention**: 7 days
 - **Node Groups**: Includes spot instances for cost optimization
 - **Force Destroy**: Enabled for development workflows
-- **Domain**: sre-challenge-staging.local
+- **Domain**: sre-challenge-panther.network
 
 ### Production Environment
-- **Deletion Protection**: Enabled (data protection)
-- **Log Retention**: 30 days
-- **Node Groups**: On-demand instances only (reliability)
-- **Force Destroy**: Disabled (data protection)
-- **Domain**: sre-challenge-production.local
+- **TODO**
 
 ## Architecture Overview
 
@@ -133,61 +271,8 @@ aws route53 list-hosted-zones --profile staging
 aws s3 ls --profile staging
 ```
 
-## Cost Optimization
-
-### Staging Environment
-- **Spot Instances**: 50% cost reduction for non-critical workloads
-- **Minimal Node Count**: Start with 2 nodes, scale as needed
-- **Lifecycle Policies**: Automatic cleanup of old artifacts
-
-### Production Environment
-- **Reserved Instances**: Consider RI for predictable workloads
-- **Auto Scaling**: Automatic scaling based on demand
-- **Storage Classes**: Use IA/Glacier for long-term storage
-
-## Next Steps - Phase 2: Flux Installation
-
-1. **Install Flux**: Bootstrap GitOps workflow
-2. **Repository Structure**: Create GitOps repository layout
-3. **Application Manifests**: Prepare Kubernetes deployments
-4. **Automated Deployment**: Configure continuous deployment
-
-## Support & Troubleshooting
-
-### Common Issues
-
-1. **Backend Bucket Not Found**
-   ```bash
-   # Run backend setup first
-   ./scripts/setup-backend.sh staging us-east-1 staging
-   ```
-
-2. **Permission Denied**
-   ```bash
-   # Check AWS credentials
-   aws sts get-caller-identity --profile staging
-   ```
-
-3. **Terraform Lock**
-   ```bash
-   # If stuck, force unlock (use carefully)
-   terraform force-unlock <LOCK_ID>
-   ```
-
-### Getting Help
-- Check terraform/README.md for detailed documentation
-- Review AWS CloudTrail for deployment events
-- Use `terraform plan` to preview changes before applying
-
-This completes **Phase 1: Cluster Setup** with enterprise-grade infrastructure ready for GitOps deployment!
-
-
-
-
 
 # 🚀 Phase 2: Flux GitOps Setup
-
-This document outlines the setup and configuration of Flux for GitOps workflow on the SRE Challenge EKS cluster.
 
 ## 📋 Overview
 
@@ -195,35 +280,6 @@ This document outlines the setup and configuration of Flux for GitOps workflow o
 - **Application**: nginx web server with health checks and auto-scaling
 - **Monitoring**: Built-in health checks, HPA, and rollback capabilities
 - **Security**: RBAC-enabled, namespace isolation, resource limits
-
-## 🏗️ Repository Structure
-
-```
-gitOps-workflow-flux/
-├── clusters/
-│   └── staging/
-│       ├── flux-system/
-│       │   ├── gotk-components.yaml    # Flux controllers
-│       │   ├── gotk-sync.yaml          # Git repository sync
-│       │   └── kustomization.yaml     # Flux system config
-│       └── kustomization.yaml         # Cluster-level config
-├── apps/
-│   └── staging/
-│       └── sre-challenge-app/
-│           ├── namespace.yaml          # App namespace
-│           ├── deployment.yaml         # App deployment
-│           ├── service.yaml            # ClusterIP service
-│           ├── configmap.yaml          # nginx config + content
-│           ├── ingress.yaml            # ALB ingress
-│           ├── hpa.yaml                # Horizontal Pod Autoscaler
-│           └── kustomization.yaml     # App-level config
-├── infrastructure/
-│   └── staging/
-│       └── monitoring/
-│           └── namespace.yaml          # Monitoring namespace
-└── scripts/
-    └── install-flux.sh                # Flux bootstrap script
-```
 
 ## 🎯 Installation Steps
 
@@ -237,11 +293,7 @@ Ensure you have:
 
 #### Install Flux CLI
 ```bash
-# macOS
 brew install fluxcd/tap/flux
-
-# Linux
-curl -s https://fluxcd.io/install.sh | sudo bash
 ```
 
 #### Create GitHub Token
