@@ -434,10 +434,17 @@ kubectl describe ingress sre-challenge-app -n sre-challenge
 ## 🌐 Accessing the Application
 
 Once deployed, the application will be available at:
-- **URL**: `http://eu-central-1.sre-challenge-staging.local`
-- **Health Check**: `http://eu-central-1.sre-challenge-staging.local/health`
+- **URL**: `https://eu-central-1.sre-challenge-panther.network`
+- **Health Check**: `https://eu-central-1.sre-challenge-panther.network/health`
 
-> **Note**: You may need to add the ALB DNS name to your hosts file or use the actual ALB endpoint.
+💡 Health Monitor Benefits:
+
+  - 🛡️ Zero-downtime deployments: Health checks prevent broken deployments
+  - 🔄 Automated validation: No manual testing needed after deployments
+  - 📊 Deployment confidence: Clear success/failure feedback
+  - 🚨 Early failure detection: Catches issues before users notice
+  - 🧹 Self-cleaning: TTL prevents job accumulation
+
 
 ## 🔧 Troubleshooting
 
@@ -447,6 +454,7 @@ Once deployed, the application will be available at:
 ```bash
 flux reconcile source git flux-system
 flux reconcile kustomization flux-system
+flux reconcile kustomization -n sre-challenge
 ```
 
 **2. Application not deploying**
@@ -478,23 +486,17 @@ kubectl get all -n sre-challenge
 kubectl describe deployment sre-challenge-app -n sre-challenge
 ```
 
-## 🎯 Success Criteria
 
-✅ **Flux Installation**: Controllers running in flux-system namespace  
-✅ **Git Synchronization**: Repository syncing every minute  
-✅ **Application Deployment**: Pods running in sre-challenge namespace  
-✅ **Health Checks**: All probes passing  
-✅ **Auto-scaling**: HPA configured and responsive  
-✅ **Ingress**: ALB created and routing traffic  
-✅ **Rollback Capability**: Deployment history maintained  
 
-## 🚀 Next Steps
 
-After successful Phase 2 completion:
-1. **Phase 3**: Application Deployment - Deploy different app versions
 2. **Phase 4**: Monitoring and Logging - Setup Prometheus & Grafana  
-3. **Phase 5**: Documentation - Complete setup documentation
 
 ---
 
-**SRE Challenge - Phase 2 Complete! 🎉**
+**SRE Challenge - Complete! 🎉**
+SRE Challenge now has:
+  - ✅ Full monitoring stack (Prometheus, Grafana, Fluent Bit)
+  - ✅ Automated health validation with deployment verification
+  - ✅ Robust GitOps workflow that doesn't hang
+  - ✅ Application accessibility with proper ALB security groups
+  - ✅ Automated rollback capability through health checks
