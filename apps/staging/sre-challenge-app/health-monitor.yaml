@@ -78,7 +78,7 @@ data:
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: post-deployment-health-check-v2
+  name: post-deployment-health-check-v3
   namespace: sre-challenge
   annotations:
     # This job will be triggered after each deployment
@@ -91,7 +91,7 @@ spec:
       - name: health-checker
         image: alpine/curl:latest
         command: ["/bin/sh"]
-        args: ["-c", "apk add --no-cache kubectl && /scripts/monitor.sh"]
+        args: ["-c", "apk add --no-cache kubectl && chmod +x /scripts/monitor.sh && ls -la /scripts/ && cat /scripts/monitor.sh && /bin/sh /scripts/monitor.sh"]
         volumeMounts:
         - name: scripts
           mountPath: /scripts
