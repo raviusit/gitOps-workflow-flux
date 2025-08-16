@@ -486,6 +486,7 @@ kubectl get all -n sre-challenge
 kubectl describe deployment sre-challenge-app -n sre-challenge
 ```
 
+# 🚀 Phase 3: Monitoring with health-checks
 
 The health monitor implements automated rollback validation - a critical SRE practice for zero-downtime deployments:
 
@@ -597,7 +598,7 @@ Complete Automation Flow
   This creates a self-healing, continuously updated infrastructure that maintains security and reliability while reducing operational overhead!
 
 
-2. **Phase 3**: Monitoring and Logging - Setup Prometheus & Grafana  
+# 🚀 Phase 4: Monitoring and Logging - Setup Prometheus & Grafana  
 
 This part covers the complete monitoring and logging setup for the SRE Challenge infrastructure, implementing observability best practices with Prometheus, Grafana, and Fluentd.
 
@@ -668,7 +669,6 @@ The SRE Challenge Application Dashboard includes:
 - **CPU Usage**: Container CPU utilization
 - **Memory Usage**: Container memory consumption
 - **Pod Replicas**: Deployment replica status
-
 
 
 ## Log Analysis
