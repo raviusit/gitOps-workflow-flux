@@ -9,7 +9,8 @@ resources:
 - hpa.yaml
 - gitrepository.yaml
 - kustomization-flux.yaml
-- health-monitor.yaml
+# Temporarily disabled until we implement proper monitoring solution
+# - health-monitor.yaml
 - imagerepository.yaml
 - imagepolicy.yaml
 - imageupdateautomation.yaml

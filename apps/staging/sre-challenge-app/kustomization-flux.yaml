@@ -11,7 +11,7 @@ spec:
     kind: GitRepository
     name: sre-challenge-app-source
   
-  # Health checks and automated rollback configuration
+  # Health checks - monitoring deployment health only (no external job dependency)
   healthChecks:
     - apiVersion: apps/v1
       kind: Deployment
@@ -28,8 +28,8 @@ spec:
   # Flux will revert to the last known good state if health checks fail
   retryInterval: 30s
   
-  # Force update on changes
-  force: false
+  # Force update on changes - required for Job updates since Jobs are immutable
+  force: true
   
   # Post-build substitutions for dynamic values
   postBuild:
