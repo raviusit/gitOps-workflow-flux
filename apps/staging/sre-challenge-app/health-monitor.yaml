@@ -78,34 +78,40 @@ data:
     exit 1
 ---
 apiVersion: batch/v1
-kind: Job
+kind: CronJob
 metadata:
-  name: post-deployment-health-check
+  name: health-monitor-cronjob
   namespace: sre-challenge
   annotations:
-    # This job will be triggered after each deployment
-    flux.weave.works/automated: "true"
+    # Continuous health monitoring that doesn't block Flux reconciliation
+    kustomize.toolkit.fluxcd.io/reconcile: "disabled"
 spec:
-  # Jobs are immutable, so we need to use manual deletion + TTL for cleanup
-  ttlSecondsAfterFinished: 600  # Clean up job 10 minutes after completion
-  template:
+  # Run health check every 5 minutes
+  schedule: "*/5 * * * *"
+  successfulJobsHistoryLimit: 2
+  failedJobsHistoryLimit: 2
+  jobTemplate:
     spec:
-      serviceAccountName: health-checker
-      containers:
-      - name: health-checker
-        image: alpine/curl:latest
-        command: ["/bin/sh"]
-        args: ["-c", "apk add --no-cache kubectl && /scripts/monitor.sh"]
-        volumeMounts:
-        - name: scripts
-          mountPath: /scripts
-        env:
-        - name: KUBECONFIG
-          value: "/tmp/kubeconfig"
-      volumes:
-      - name: scripts
-        configMap:
-          name: health-monitor-config
-          defaultMode: 0755
-      restartPolicy: Never
-  backoffLimit: 3
+      # Clean up job after completion
+      ttlSecondsAfterFinished: 300
+      template:
+        spec:
+          serviceAccountName: health-checker
+          containers:
+          - name: health-checker
+            image: alpine/curl:latest
+            command: ["/bin/sh"]
+            args: ["-c", "apk add --no-cache kubectl && /scripts/monitor.sh"]
+            volumeMounts:
+            - name: scripts
+              mountPath: /scripts
+            env:
+            - name: KUBECONFIG
+              value: "/tmp/kubeconfig"
+          volumes:
+          - name: scripts
+            configMap:
+              name: health-monitor-config
+              defaultMode: 0755
+          restartPolicy: Never
+      backoffLimit: 1
