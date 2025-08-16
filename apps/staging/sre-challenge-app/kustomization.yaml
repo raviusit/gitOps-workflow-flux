@@ -11,7 +11,7 @@ resources:
 - kustomization-flux.yaml
 # Health monitor temporarily disabled - causes Flux to wait indefinitely for Job completion
 # Will implement as separate monitoring system or CronJob
-# - health-monitor.yaml
+- health-monitor.yaml
 - imagerepository.yaml
 - imagepolicy.yaml
 - imageupdateautomation.yaml
