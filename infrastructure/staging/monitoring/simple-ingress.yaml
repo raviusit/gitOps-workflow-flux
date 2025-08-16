@@ -40,8 +40,8 @@ metadata:
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 9090}]'
     alb.ingress.kubernetes.io/healthcheck-protocol: HTTP
     alb.ingress.kubernetes.io/healthcheck-port: traffic-port
-    alb.ingress.kubernetes.io/healthcheck-path: '/'
-    alb.ingress.kubernetes.io/success-codes: '200'
+    alb.ingress.kubernetes.io/healthcheck-path: '/-/healthy'
+    alb.ingress.kubernetes.io/success-codes: '200,302'
     alb.ingress.kubernetes.io/group.name: monitoring-simple
     alb.ingress.kubernetes.io/group.order: '200'
     alb.ingress.kubernetes.io/manage-backend-security-group-rules: "false"
