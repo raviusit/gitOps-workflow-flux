@@ -78,12 +78,14 @@ data:
 apiVersion: batch/v1
 kind: Job
 metadata:
-  generateName: post-deployment-health-check-
+  name: post-deployment-health-check
   namespace: sre-challenge
   annotations:
     # This job will be triggered after each deployment
     flux.weave.works/automated: "true"
 spec:
+  # Jobs are immutable, so we need to use manual deletion + TTL for cleanup
+  ttlSecondsAfterFinished: 600  # Clean up job 10 minutes after completion
   template:
     spec:
       serviceAccountName: health-checker
