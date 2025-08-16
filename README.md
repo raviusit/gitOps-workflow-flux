@@ -633,8 +633,8 @@ This part covers the complete monitoring and logging setup for the SRE Challenge
 
 🌐 Access URLs:
 
-  - Prometheus: http://k8s-monitoringsimple-cc77efde23-1660016883.eu-central-1.elb.amazonaws.com:9090/
-  - Grafana: http://k8s-monitoringsimple-cc77efde23-1660016883.eu-central-1.elb.amazonaws.com:3000/ (admin/admin123)
+  - Prometheus: http://k8s-monitoringsimple-cc77efde23-614144927.eu-central-1.elb.amazonaws.com:9090/
+  - Grafana: http://k8s-monitoringsimple-cc77efde23-614144927.eu-central-1.elb.amazonaws.com:3000/ (admin/admin123)
 
 
 ### Port Forwarding (Development)
