@@ -23,3 +23,8 @@ commonLabels:
   app.kubernetes.io/managed-by: flux
 
 namespace: sre-challenge
+
+# Use suffix hash for unique Job names
+nameSuffix: "-"
+generatorOptions:
+  disableNameSuffixHash: false
