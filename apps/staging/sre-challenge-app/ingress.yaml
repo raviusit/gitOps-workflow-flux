@@ -17,6 +17,7 @@ metadata:
     alb.ingress.kubernetes.io/ssl-redirect: "443"
     alb.ingress.kubernetes.io/certificate-arn: "arn:aws:acm:eu-central-1:215876814712:certificate/4e7e0974-b549-475f-9a93-7adc2b6e9db0"
     alb.ingress.kubernetes.io/manage-backend-security-group-rules: "false"
+    alb.ingress.kubernetes.io/security-groups: sg-0597708455ae0f10c
 spec:
   rules:
   - host: eu-central-1.sre-challenge-panther.network
