@@ -121,8 +121,4 @@ output "project_name" {
   value       = var.project_name
 }
 
-# ALB Shared Security Group (managed by Terraform, used by AWS Load Balancer Controller)
-output "alb_shared_security_group_id" {
-  description = "Security group ID shared between Terraform and AWS Load Balancer Controller"
-  value       = aws_security_group.alb_controller_shared.id
-}
+# ALB resources are now fully managed by AWS Load Balancer Controller
