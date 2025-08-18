@@ -121,4 +121,22 @@ output "project_name" {
   value       = var.project_name
 }
 
+# CloudFront Distribution (commented out until ALB domain is known)
+# output "cloudfront_distribution_id" {
+#   description = "CloudFront distribution ID"
+#   value       = module.cloudfront.distribution_id
+# }
+
+# output "cloudfront_distribution_domain_name" {
+#   description = "CloudFront distribution domain name"
+#   value       = module.cloudfront.distribution_domain_name
+# }
+
+output "cloudfront_certificate_arn" {
+  description = "CloudFront certificate ARN (us-east-1)"
+  value       = module.acm_cloudfront.certificate_arn
+}
+
+# Security groups managed by ALB Controller with prefix list pl-a3a144ca
+
 # ALB resources are now fully managed by AWS Load Balancer Controller

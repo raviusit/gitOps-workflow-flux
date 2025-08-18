@@ -35,6 +35,23 @@ provider "aws" {
   }
 }
 
+# Additional provider for CloudFront certificate (must be us-east-1)
+provider "aws" {
+  alias   = "us_east_1"
+  region  = "us-east-1"
+  profile = "staging-215876814712-raisin"
+
+  default_tags {
+    tags = {
+      Project     = var.project_name
+      Environment = var.environment
+      Region      = "us-east-1"
+      ManagedBy   = "Terraform"
+      Scope       = "CloudFront"
+    }
+  }
+}
+
 # Data sources
 data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
@@ -159,6 +176,47 @@ module "s3_regional" {
 
   tags = local.common_tags
 }
+
+# CloudFront Certificate Module (us-east-1 required for CloudFront)
+module "acm_cloudfront" {
+  source = "../../../../modules/acm-cloudfront"
+  
+  providers = {
+    aws = aws.us_east_1
+  }
+
+  domain_name     = var.domain_name
+  hosted_zone_id  = local.hosted_zone_id
+
+  tags = local.common_tags
+}
+
+# CloudFront Distribution Module (commented out until ALB domain is known)
+# module "cloudfront" {
+#   source = "../../../../modules/cloudfront"
+
+#   project_name    = var.project_name
+#   environment     = var.environment
+#   certificate_arn = module.acm_cloudfront.certificate_arn
+  
+#   # ALB domain names (will be discovered after ALB Controller creates them)
+#   alb_domain_name = var.alb_domain_name
+  
+#   # Domain aliases
+#   domain_aliases = [var.domain_name]
+  
+#   # CloudFront settings
+#   price_class        = "PriceClass_100"  # US, Canada, Europe
+#   default_cache_ttl  = 300   # 5 minutes
+#   max_cache_ttl      = 86400 # 24 hours
+
+#   tags = local.common_tags
+
+#   depends_on = [module.acm_cloudfront]
+# }
+
+# ALB Security Groups will be managed by AWS Load Balancer Controller
+# Using ingress annotations with CloudFront prefix list: pl-a3a144ca
 
 # DNS alias record is managed by Kubernetes AWS Load Balancer Controller
 # Certificate is provided via ACM module for Kubernetes ingress to use
