@@ -7,7 +7,7 @@ resources:
 - namespace.yaml
 - prometheus-operator.yaml
 - fluent-bit.yaml
-- simple-ingress.yaml
+- monitoring-ingress.yaml
 - sre-challenge-dashboard.yaml
 - servicemonitors.yaml
 - node-health-dashboard.yaml
