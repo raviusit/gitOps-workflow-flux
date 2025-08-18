@@ -215,8 +215,52 @@ module "acm_cloudfront" {
 #   depends_on = [module.acm_cloudfront]
 # }
 
-# ALB Security Groups will be managed by AWS Load Balancer Controller
-# Using ingress annotations with CloudFront prefix list: pl-a3a144ca
+# CloudFront-compliant security group for ALB 
+# Prefix list will be added via CLI to avoid Terraform rule limit issues
+resource "aws_security_group" "cloudfront_alb" {
+  name        = "${var.project_name}-cloudfront-alb-sg"
+  description = "ALB security group for CloudFront access - Security Hub compliant"
+  vpc_id      = module.vpc.vpc_id
+
+  # VPC CIDR for internal access (Security Hub compliant)
+  ingress {
+    description = "HTTPS from VPC"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = [module.vpc.vpc_cidr_block]
+  }
+
+  # VPC CIDR for internal access (Security Hub compliant)
+  ingress {
+    description = "HTTP from VPC"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = [module.vpc.vpc_cidr_block]
+  }
+
+  egress {
+    description = "All outbound traffic"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = merge(local.common_tags, {
+    Name = "${var.project_name}-cloudfront-alb-sg"
+    Type = "ALB-CloudFront"
+    SecurityHubCompliant = "true"
+  })
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+# CloudFront prefix list rules will be added via external script
+# to avoid Terraform security group rule limit issues
 
 # DNS alias record is managed by Kubernetes AWS Load Balancer Controller
 # Certificate is provided via ACM module for Kubernetes ingress to use

@@ -137,6 +137,9 @@ output "cloudfront_certificate_arn" {
   value       = module.acm_cloudfront.certificate_arn
 }
 
-# Security groups managed by ALB Controller with prefix list pl-a3a144ca
+output "cloudfront_alb_security_group_id" {
+  description = "Security group ID for CloudFront-compatible ALB (Security Hub compliant)"
+  value       = aws_security_group.cloudfront_alb.id
+}
 
 # ALB resources are now fully managed by AWS Load Balancer Controller
