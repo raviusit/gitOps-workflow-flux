@@ -15,6 +15,7 @@ metadata:
     alb.ingress.kubernetes.io/group.name: monitoring-ingress
     alb.ingress.kubernetes.io/group.order: '100'
     alb.ingress.kubernetes.io/security-groups: sg-0f033d977ed2eb351
+    alb.ingress.kubernetes.io/manage-backend-security-group-rules: "false"
     alb.ingress.kubernetes.io/tags: Environment=staging,Project=sre-challenge
 spec:
   rules:
@@ -45,6 +46,7 @@ metadata:
     alb.ingress.kubernetes.io/group.name: monitoring-ingress
     alb.ingress.kubernetes.io/group.order: '200'
     alb.ingress.kubernetes.io/security-groups: sg-0f033d977ed2eb351
+    alb.ingress.kubernetes.io/manage-backend-security-group-rules: "false"
     alb.ingress.kubernetes.io/tags: Environment=staging,Project=sre-challenge
 spec:
   rules:
