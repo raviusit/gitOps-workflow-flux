@@ -60,25 +60,7 @@ output "eks_node_groups" {
   value       = module.eks.node_groups
 }
 
-output "alb_arn" {
-  description = "ARN of the Application Load Balancer"
-  value       = module.alb.alb_arn
-}
-
-output "alb_dns_name" {
-  description = "DNS name of the Application Load Balancer"
-  value       = module.alb.alb_dns_name
-}
-
-output "alb_canonical_hosted_zone_id" {
-  description = "Canonical hosted zone ID of the Application Load Balancer"
-  value       = module.alb.alb_canonical_hosted_zone_id
-}
-
-output "alb_security_group_id" {
-  description = "Security group ID of the Application Load Balancer"
-  value       = module.alb.alb_security_group_id
-}
+# ALB outputs removed - ALBs now managed by AWS Load Balancer Controller
 
 # IRSA Role ARNs
 output "aws_load_balancer_controller_role_arn" {
@@ -137,4 +119,10 @@ output "environment" {
 output "project_name" {
   description = "Project name"
   value       = var.project_name
+}
+
+# ALB Shared Security Group (managed by Terraform, used by AWS Load Balancer Controller)
+output "alb_shared_security_group_id" {
+  description = "Security group ID shared between Terraform and AWS Load Balancer Controller"
+  value       = aws_security_group.alb_controller_shared.id
 }

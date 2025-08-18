@@ -145,32 +145,94 @@ module "acm" {
   tags = local.common_tags
 }
 
-# ALB Module (uses IRSA roles)
-module "alb" {
-  source = "../../../../modules/alb"
+# ALB Module removed - letting AWS Load Balancer Controller manage ALBs
+# This eliminates the conflict between Terraform and controller over ALB/security group management
+# We keep the existing security group for the controller to continue using
 
-  project_name                      = var.project_name
-  environment                       = var.environment
-  vpc_id                           = module.vpc.vpc_id
-  public_subnet_ids                = module.vpc.public_subnet_ids
-  private_subnet_ids               = module.vpc.private_subnet_ids
-  internal                         = var.alb_internal
-  enable_deletion_protection       = var.alb_enable_deletion_protection
-  enable_cross_zone_load_balancing = var.alb_enable_cross_zone_load_balancing
-  enable_http2                     = var.alb_enable_http2
-  idle_timeout                     = var.alb_idle_timeout
-  access_logs_enabled              = var.alb_access_logs_enabled
-  access_logs_bucket               = var.alb_access_logs_bucket
-  access_logs_prefix               = var.alb_access_logs_prefix
-  ingress_rules                    = var.alb_ingress_rules
-  enable_http_listener             = var.alb_enable_http_listener
-  enable_https_listener            = var.alb_enable_https_listener
-  certificate_arn                  = module.acm.certificate_arn
-  ssl_policy                       = var.alb_ssl_policy
+# Import existing security group that controller is already using
+resource "aws_security_group" "alb_controller_shared" {
+  name        = "sre-challenge-alb-sg-staging"
+  description = "Security group for ALB"
+  vpc_id      = module.vpc.vpc_id
 
-  tags = local.common_tags
+  # Allow all outbound traffic
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 
-  depends_on = [module.vpc, module.iam_irsa]
+  tags = merge(local.common_tags, {
+    Name = "sre-challenge-alb-sg-staging"
+  })
+
+  lifecycle {
+    # Prevent accidental destruction since controller depends on this
+    prevent_destroy = true
+    ignore_changes = [
+      # Ignore changes that might be made by the ALB controller
+      ingress
+    ]
+  }
+}
+
+# Security group rules for HTTP/HTTPS access
+resource "aws_security_group_rule" "alb_http_access" {
+  type              = "ingress"
+  from_port         = 80
+  to_port           = 80
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  description       = "HTTP access for ALB"
+  security_group_id = aws_security_group.alb_controller_shared.id
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_security_group_rule" "alb_https_access" {
+  type              = "ingress"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  description       = "HTTPS access for ALB"
+  security_group_id = aws_security_group.alb_controller_shared.id
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+# Monitoring specific rules
+resource "aws_security_group_rule" "alb_grafana_access" {
+  type              = "ingress"
+  from_port         = 3000
+  to_port           = 3000
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  description       = "Grafana access for monitoring ALB"
+  security_group_id = aws_security_group.alb_controller_shared.id
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_security_group_rule" "alb_prometheus_access" {
+  type              = "ingress"
+  from_port         = 9090
+  to_port           = 9090
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  description       = "Prometheus access for monitoring ALB"
+  security_group_id = aws_security_group.alb_controller_shared.id
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 # Regional S3 Module
@@ -187,3 +249,4 @@ module "s3_regional" {
 
 # DNS alias record is managed by Kubernetes AWS Load Balancer Controller
 # Certificate is provided via ACM module for Kubernetes ingress to use
+
