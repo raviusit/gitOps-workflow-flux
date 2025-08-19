@@ -12,6 +12,7 @@ resources:
 - servicemonitors.yaml
 - node-health-dashboard.yaml
 - application-health-dashboard.yaml
+- network-policy.yaml
 
 commonLabels:
   app.kubernetes.io/name: monitoring-stack
