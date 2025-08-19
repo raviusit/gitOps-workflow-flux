@@ -252,14 +252,14 @@ variable "alb_ingress_rules" {
       from_port   = 80
       to_port     = 80
       protocol    = "tcp"
-      cidr_blocks = ["0.0.0.0/0"]
+      cidr_blocks = ["92.72.32.195/32", "92.72.32.196/32"]
     },
     {
       description = "HTTPS"
       from_port   = 443
       to_port     = 443
       protocol    = "tcp"
-      cidr_blocks = ["0.0.0.0/0"]
+      cidr_blocks = ["92.72.32.195/32", "92.72.32.196/32"]
     }
   ]
 }

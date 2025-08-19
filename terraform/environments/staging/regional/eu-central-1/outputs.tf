@@ -89,16 +89,16 @@ output "regional_s3_bucket_arns" {
   value       = module.s3_regional.bucket_arns
 }
 
-# ACM Certificate
-output "certificate_arn" {
-  description = "ARN of the ACM certificate"
-  value       = module.acm.certificate_arn
-}
+# ACM Certificate (using existing certificate)
+# output "certificate_arn" {
+#   description = "ARN of the ACM certificate"
+#   value       = module.acm.certificate_arn
+# }
 
-output "certificate_domain_name" {
-  description = "Domain name of the certificate"
-  value       = module.acm.domain_name
-}
+# output "certificate_domain_name" {
+#   description = "Domain name of the certificate"
+#   value       = module.acm.domain_name
+# }
 
 output "alb_record_fqdn" {
   description = "FQDN of the DNS record pointing to ALB (managed by Kubernetes)"

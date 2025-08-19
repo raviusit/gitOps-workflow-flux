@@ -11,7 +11,7 @@ spec:
   git:
     checkout:
       ref:
-        branch: main
+        branch: restore-cfb3f26
     commit:
       author:
         email: flux@sre-challenge.local
@@ -36,7 +36,7 @@ spec:
         - {{.}}
         {{ end -}}
     push:
-      branch: main
+      branch: restore-cfb3f26
   update:
     path: "./apps/staging/sre-challenge-app"
     strategy: Setters

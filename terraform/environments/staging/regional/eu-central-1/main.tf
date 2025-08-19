@@ -35,22 +35,6 @@ provider "aws" {
   }
 }
 
-# Additional provider for CloudFront certificate (must be us-east-1)
-provider "aws" {
-  alias   = "us_east_1"
-  region  = "us-east-1"
-  profile = "staging-215876814712-raisin"
-
-  default_tags {
-    tags = {
-      Project     = var.project_name
-      Environment = var.environment
-      Region      = "us-east-1"
-      ManagedBy   = "Terraform"
-      Scope       = "CloudFront"
-    }
-  }
-}
 
 # Data sources
 data "aws_caller_identity" "current" {}
@@ -152,19 +136,44 @@ resource "aws_eks_addon" "ebs_csi_driver" {
   tags = local.common_tags
 }
 
-# ACM Certificate Module (creates certificate for this region)
-module "acm" {
-  source = "../../../../modules/acm"
+# ACM Certificate Module (using existing certificate)
+# module "acm" {
+#   source = "../../../../modules/acm"
+#
+#   domain_name     = var.domain_name
+#   hosted_zone_id  = local.hosted_zone_id
+#
+#   tags = local.common_tags
+# }
 
-  domain_name     = var.domain_name
-  hosted_zone_id  = local.hosted_zone_id
+# ALB Module (uses IRSA roles)
+module "alb" {
+  source = "../../../../modules/alb"
+
+  project_name                      = var.project_name
+  environment                       = var.environment
+  vpc_id                           = module.vpc.vpc_id
+  public_subnet_ids                = module.vpc.public_subnet_ids
+  private_subnet_ids               = module.vpc.private_subnet_ids
+  internal                         = var.alb_internal
+  enable_deletion_protection       = var.alb_enable_deletion_protection
+  enable_cross_zone_load_balancing = var.alb_enable_cross_zone_load_balancing
+  enable_http2                     = var.alb_enable_http2
+  idle_timeout                     = var.alb_idle_timeout
+  access_logs_enabled              = var.alb_access_logs_enabled
+  access_logs_bucket               = var.alb_access_logs_bucket
+  access_logs_prefix               = var.alb_access_logs_prefix
+  ingress_rules                    = var.alb_ingress_rules
+  enable_http_listener             = var.alb_enable_http_listener
+  enable_https_listener            = var.alb_enable_https_listener
+  certificate_arn                  = "arn:aws:acm:eu-central-1:215876814712:certificate/044d1363-c331-48a7-a093-44b8d558ea90"
+  ssl_policy                       = var.alb_ssl_policy
 
   tags = local.common_tags
+
+  depends_on = [module.vpc, module.iam_irsa]
 }
-
-# ALB Module removed - letting AWS Load Balancer Controller manage ALBs completely
-# This eliminates the conflict between Terraform and controller over ALB/security group management
-
+    
 # Regional S3 Module
 module "s3_regional" {
   source = "../../../../modules/s3"

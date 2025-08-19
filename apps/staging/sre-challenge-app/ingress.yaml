@@ -14,10 +14,9 @@ metadata:
     alb.ingress.kubernetes.io/unhealthy-threshold-count: "5"
     alb.ingress.kubernetes.io/tags: Environment=staging,Project=sre-challenge
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
-    alb.ingress.kubernetes.io/ssl-redirect: "443"
-    alb.ingress.kubernetes.io/certificate-arn: "arn:aws:acm:eu-central-1:215876814712:certificate/4e7e0974-b549-475f-9a93-7adc2b6e9db0"
-    alb.ingress.kubernetes.io/security-groups: sg-0f033d977ed2eb351
-    alb.ingress.kubernetes.io/manage-backend-security-group-rules: "false"
+    alb.ingress.kubernetes.io/certificate-arn: "arn:aws:acm:eu-central-1:215876814712:certificate/044d1363-c331-48a7-a093-44b8d558ea90"  # ACM certificate ARN
+    alb.ingress.kubernetes.io/load-balancer-name: "sre-challenge-alb-k8s"  # K8s managed ALB
+    alb.ingress.kubernetes.io/inbound-cidrs: "92.72.32.195/32,92.72.32.196/32"  # IP whitelist
 spec:
   rules:
   - host: eu-central-1.sre-challenge-panther.network
