@@ -105,7 +105,10 @@ resource "aws_iam_policy" "aws_load_balancer_controller" {
         Effect = "Allow"
         Action = [
           "elasticloadbalancing:CreateLoadBalancer",
-          "elasticloadbalancing:CreateTargetGroup"
+          "elasticloadbalancing:CreateTargetGroup",
+          "elasticloadbalancing:CreateListener",
+          "elasticloadbalancing:CreateRule",
+          "elasticloadbalancing:RegisterTargets"
         ]
         Resource = "*"
       },
@@ -125,7 +128,11 @@ resource "aws_iam_policy" "aws_load_balancer_controller" {
           "elasticloadbalancing:DeleteLoadBalancer",
           "elasticloadbalancing:ModifyTargetGroup",
           "elasticloadbalancing:ModifyTargetGroupAttributes",
-          "elasticloadbalancing:DeleteTargetGroup"
+          "elasticloadbalancing:DeleteTargetGroup",
+          "elasticloadbalancing:ModifyListener",
+          "elasticloadbalancing:ModifyRule",
+          "elasticloadbalancing:DeleteListener",
+          "elasticloadbalancing:DeleteRule"
         ]
         Resource = "*"
       }
