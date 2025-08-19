@@ -17,6 +17,7 @@ metadata:
     alb.ingress.kubernetes.io/manage-backend-security-group-rules: "false"
     alb.ingress.kubernetes.io/tags: Environment=staging,Project=sre-challenge
     alb.ingress.kubernetes.io/inbound-cidrs: "92.72.32.195/32,92.72.32.196/32"  # IP whitelist
+    alb.ingress.kubernetes.io/subnets: "subnet-0d0a26139d7bd7638,subnet-0fa934c34c35e2f04,subnet-048d88630d355e747"  # Explicit subnet IDs
 spec:
   rules:
   - http:
@@ -48,6 +49,7 @@ metadata:
     alb.ingress.kubernetes.io/manage-backend-security-group-rules: "false"
     alb.ingress.kubernetes.io/tags: Environment=staging,Project=sre-challenge
     alb.ingress.kubernetes.io/inbound-cidrs: "92.72.32.195/32,92.72.32.196/32"  # IP whitelist
+    alb.ingress.kubernetes.io/subnets: "subnet-0d0a26139d7bd7638,subnet-0fa934c34c35e2f04,subnet-048d88630d355e747"  # Explicit subnet IDs
 spec:
   rules:
   - http:

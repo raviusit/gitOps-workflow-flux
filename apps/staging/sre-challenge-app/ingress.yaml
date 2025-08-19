@@ -18,6 +18,7 @@ metadata:
     alb.ingress.kubernetes.io/certificate-arn: "arn:aws:acm:eu-central-1:215876814712:certificate/044d1363-c331-48a7-a093-44b8d558ea90"  # ACM certificate ARN
     alb.ingress.kubernetes.io/load-balancer-name: "sre-challenge-alb-k8s"  # K8s managed ALB
     alb.ingress.kubernetes.io/inbound-cidrs: "92.72.32.195/32,92.72.32.196/32"  # IP whitelist
+    alb.ingress.kubernetes.io/subnets: "subnet-0d0a26139d7bd7638,subnet-0fa934c34c35e2f04,subnet-048d88630d355e747"  # Explicit subnet IDs
 spec:
   rules:
   - host: eu-central-1.sre-challenge-panther.network
