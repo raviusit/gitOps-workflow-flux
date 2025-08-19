@@ -6,7 +6,7 @@ metadata:
 spec:
   interval: 30s
   ref:
-    branch: main
+    branch: restore-cfb3f26
   url: https://github.com/raviusit/gitOps-workflow-flux
   ignore: |
     # Ignore all files except app manifests
