@@ -99,6 +99,8 @@ flux bootstrap github \
   --branch=main \
   --path="$CLUSTER_PATH" \
   --personal
+  --components-extra=image-reflector-controller,image-automation-controller
+  
 
 echo ""
 echo "✅ Flux bootstrap completed!"
