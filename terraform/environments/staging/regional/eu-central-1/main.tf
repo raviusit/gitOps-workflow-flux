@@ -35,6 +35,7 @@ provider "aws" {
   }
 }
 
+
 # Data sources
 data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
@@ -135,15 +136,15 @@ resource "aws_eks_addon" "ebs_csi_driver" {
   tags = local.common_tags
 }
 
-# ACM Certificate Module (creates certificate for this region)
-module "acm" {
-  source = "../../../../modules/acm"
-
-  domain_name     = var.domain_name
-  hosted_zone_id  = local.hosted_zone_id
-
-  tags = local.common_tags
-}
+# ACM Certificate Module (using existing certificate)
+# module "acm" {
+#   source = "../../../../modules/acm"
+#
+#   domain_name     = var.domain_name
+#   hosted_zone_id  = local.hosted_zone_id
+#
+#   tags = local.common_tags
+# }
 
 # ALB Module (uses IRSA roles)
 module "alb" {
@@ -165,7 +166,7 @@ module "alb" {
   ingress_rules                    = var.alb_ingress_rules
   enable_http_listener             = var.alb_enable_http_listener
   enable_https_listener            = var.alb_enable_https_listener
-  certificate_arn                  = module.acm.certificate_arn
+  certificate_arn                  = "arn:aws:acm:eu-central-1:215876814712:certificate/044d1363-c331-48a7-a093-44b8d558ea90"
   ssl_policy                       = var.alb_ssl_policy
 
   tags = local.common_tags

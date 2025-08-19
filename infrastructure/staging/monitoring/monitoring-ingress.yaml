@@ -12,10 +12,11 @@ metadata:
     alb.ingress.kubernetes.io/healthcheck-port: traffic-port
     alb.ingress.kubernetes.io/healthcheck-path: '/api/health'
     alb.ingress.kubernetes.io/success-codes: '200'
-    alb.ingress.kubernetes.io/group.name: monitoring-simple
+    alb.ingress.kubernetes.io/group.name: monitoring-ingress
     alb.ingress.kubernetes.io/group.order: '100'
     alb.ingress.kubernetes.io/manage-backend-security-group-rules: "false"
     alb.ingress.kubernetes.io/tags: Environment=staging,Project=sre-challenge
+    alb.ingress.kubernetes.io/inbound-cidrs: "92.72.32.195/32,92.72.32.196/32"  # IP whitelist
 spec:
   rules:
   - http:
@@ -42,10 +43,11 @@ metadata:
     alb.ingress.kubernetes.io/healthcheck-port: traffic-port
     alb.ingress.kubernetes.io/healthcheck-path: '/-/healthy'
     alb.ingress.kubernetes.io/success-codes: '200,302'
-    alb.ingress.kubernetes.io/group.name: monitoring-simple
+    alb.ingress.kubernetes.io/group.name: monitoring-ingress
     alb.ingress.kubernetes.io/group.order: '200'
     alb.ingress.kubernetes.io/manage-backend-security-group-rules: "false"
     alb.ingress.kubernetes.io/tags: Environment=staging,Project=sre-challenge
+    alb.ingress.kubernetes.io/inbound-cidrs: "92.72.32.195/32,92.72.32.196/32"  # IP whitelist
 spec:
   rules:
   - http:
