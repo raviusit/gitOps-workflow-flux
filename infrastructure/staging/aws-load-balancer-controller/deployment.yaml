@@ -37,7 +37,7 @@ spec:
       - args:
         - --cluster-name=sre-challenge-staging
         - --ingress-class=alb
-        - --aws-vpc-id=vpc-008f8db5f4ac266b2
+        - --aws-vpc-id=vpc-0e436d5118cb59459
         - --aws-region=eu-central-1
         - --webhook-bind-port=0
         - --webhook-cert-dir=/tmp/certs
