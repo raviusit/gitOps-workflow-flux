@@ -173,7 +173,7 @@ module "alb" {
 
   depends_on = [module.vpc, module.iam_irsa]
 }
-
+    
 # Regional S3 Module
 module "s3_regional" {
   source = "../../../../modules/s3"
@@ -186,5 +186,91 @@ module "s3_regional" {
   tags = local.common_tags
 }
 
+# CloudFront Certificate Module (us-east-1 required for CloudFront)
+module "acm_cloudfront" {
+  source = "../../../../modules/acm-cloudfront"
+  
+  providers = {
+    aws = aws.us_east_1
+  }
+
+  domain_name     = var.domain_name
+  hosted_zone_id  = local.hosted_zone_id
+
+  tags = local.common_tags
+}
+
+# CloudFront Distribution Module (commented out until ALB domain is known)
+# module "cloudfront" {
+#   source = "../../../../modules/cloudfront"
+
+#   project_name    = var.project_name
+#   environment     = var.environment
+#   certificate_arn = module.acm_cloudfront.certificate_arn
+  
+#   # ALB domain names (will be discovered after ALB Controller creates them)
+#   alb_domain_name = var.alb_domain_name
+  
+#   # Domain aliases
+#   domain_aliases = [var.domain_name]
+  
+#   # CloudFront settings
+#   price_class        = "PriceClass_100"  # US, Canada, Europe
+#   default_cache_ttl  = 300   # 5 minutes
+#   max_cache_ttl      = 86400 # 24 hours
+
+#   tags = local.common_tags
+
+#   depends_on = [module.acm_cloudfront]
+# }
+
+# CloudFront-compliant security group for ALB 
+# Prefix list will be added via CLI to avoid Terraform rule limit issues
+resource "aws_security_group" "cloudfront_alb" {
+  name        = "${var.project_name}-cloudfront-alb-sg"
+  description = "ALB security group for CloudFront access - Security Hub compliant"
+  vpc_id      = module.vpc.vpc_id
+
+  # VPC CIDR for internal access (Security Hub compliant)
+  ingress {
+    description = "HTTPS from VPC"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = [module.vpc.vpc_cidr_block]
+  }
+
+  # VPC CIDR for internal access (Security Hub compliant)
+  ingress {
+    description = "HTTP from VPC"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = [module.vpc.vpc_cidr_block]
+  }
+
+  egress {
+    description = "All outbound traffic"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = merge(local.common_tags, {
+    Name = "${var.project_name}-cloudfront-alb-sg"
+    Type = "ALB-CloudFront"
+    SecurityHubCompliant = "true"
+  })
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+# CloudFront prefix list rules will be added via external script
+# to avoid Terraform security group rule limit issues
+
 # DNS alias record is managed by Kubernetes AWS Load Balancer Controller
 # Certificate is provided via ACM module for Kubernetes ingress to use
+

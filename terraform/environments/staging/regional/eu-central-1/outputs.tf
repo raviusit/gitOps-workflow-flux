@@ -60,25 +60,7 @@ output "eks_node_groups" {
   value       = module.eks.node_groups
 }
 
-output "alb_arn" {
-  description = "ARN of the Application Load Balancer"
-  value       = module.alb.alb_arn
-}
-
-output "alb_dns_name" {
-  description = "DNS name of the Application Load Balancer"
-  value       = module.alb.alb_dns_name
-}
-
-output "alb_canonical_hosted_zone_id" {
-  description = "Canonical hosted zone ID of the Application Load Balancer"
-  value       = module.alb.alb_canonical_hosted_zone_id
-}
-
-output "alb_security_group_id" {
-  description = "Security group ID of the Application Load Balancer"
-  value       = module.alb.alb_security_group_id
-}
+# ALB outputs removed - ALBs now managed by AWS Load Balancer Controller
 
 # IRSA Role ARNs
 output "aws_load_balancer_controller_role_arn" {
@@ -138,3 +120,26 @@ output "project_name" {
   description = "Project name"
   value       = var.project_name
 }
+
+# CloudFront Distribution (commented out until ALB domain is known)
+# output "cloudfront_distribution_id" {
+#   description = "CloudFront distribution ID"
+#   value       = module.cloudfront.distribution_id
+# }
+
+# output "cloudfront_distribution_domain_name" {
+#   description = "CloudFront distribution domain name"
+#   value       = module.cloudfront.distribution_domain_name
+# }
+
+output "cloudfront_certificate_arn" {
+  description = "CloudFront certificate ARN (us-east-1)"
+  value       = module.acm_cloudfront.certificate_arn
+}
+
+output "cloudfront_alb_security_group_id" {
+  description = "Security group ID for CloudFront-compatible ALB (Security Hub compliant)"
+  value       = aws_security_group.cloudfront_alb.id
+}
+
+# ALB resources are now fully managed by AWS Load Balancer Controller

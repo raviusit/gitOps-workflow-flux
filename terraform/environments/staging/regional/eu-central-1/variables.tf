@@ -24,6 +24,12 @@ variable "domain_name" {
   default     = "eu-central-1.sre-challenge-panther.network"
 }
 
+variable "alb_domain_name" {
+  description = "ALB domain name created by AWS Load Balancer Controller"
+  type        = string
+  default     = ""  # Will be populated after ALB creation
+}
+
 # VPC Variables
 variable "vpc_cidr" {
   description = "CIDR block for VPC"
